@@ -6,6 +6,8 @@ class VideoPlayer {
         this.controlsVisible = true;
         this.controlsTimeout = null;
         this.hasUserInteracted = false;
+        this.currentVideoType = 'local';
+        this.youtubeTimer = null;
         
         // Advanced preloading system
         this.preloadedVideos = new Map();
@@ -52,73 +54,73 @@ class VideoPlayer {
         this.videos = [
             {
                 type: 'youtube',
-                youtubeId: 'jpbrCGHr4GI',
+                youtubeId: 'bNXiJcP5u8A',
                 brand: 'Realme',
-                model: '15T',
-                displayName: 'Realme 15T'
+                model: 'GT 7 Pro',
+                displayName: 'Realme GT 7 Pro'
             },
             {
                 type: 'youtube',
-                youtubeId: 'Em_Vcfm0rbA',
+                youtubeId: 'xqyUdNxWazA',
                 brand: 'Apple',
                 model: 'iPhone 16',
                 displayName: 'Apple iPhone 16'
             },
             {
                 type: 'youtube',
-                youtubeId: 'iiopSpbAkqE',
+                youtubeId: 'XHTrLYShBRQ',
                 brand: 'Apple',
                 model: 'iPhone 15',
                 displayName: 'Apple iPhone 15'
             },
             {
                 type: 'youtube',
-                youtubeId: 'Z75Hh1pKxgg',
+                youtubeId: 'TEjOoXPbkKw',
                 brand: 'Apple',
                 model: 'iPhone 15 Pro',
                 displayName: 'Apple iPhone 15 Pro'
             },
             {
                 type: 'youtube',
-                youtubeId: '3kklV0nZONw',
+                youtubeId: 'dDyKJpTvhzI',
                 brand: 'Apple',
-                model: 'iPhone 17 Pro',
-                displayName: 'Apple iPhone 17 Pro'
+                model: 'iPhone 15 Pro Max',
+                displayName: 'Apple iPhone 15 Pro Max'
             },
             {
                 type: 'youtube',
-                youtubeId: 'XvGSV_VglQg',
+                youtubeId: 'Bt9zSfinwFA',
                 brand: 'OPPO',
-                model: 'A5 Pro 5G',
-                displayName: 'OPPO A5 Pro 5G'
+                model: 'A3 Pro 5G',
+                displayName: 'OPPO A3 Pro 5G'
             },
             {
                 type: 'youtube',
-                youtubeId: 'txpQDi-mIuI',
+                youtubeId: 'YEb3Pxws6x4',
                 brand: 'OPPO',
-                model: 'A5',
-                displayName: 'OPPO A5'
+                model: 'Reno12 Pro',
+                displayName: 'OPPO Reno12 Pro'
             },
             {
                 type: 'youtube',
-                youtubeId: '_9zGIc84_2I',
+                youtubeId: 'HNMq5248cZg',
                 brand: 'OPPO',
-                model: 'A5x',
-                displayName: 'OPPO A5x'
+                model: 'Find X8',
+                displayName: 'OPPO Find X8'
             },
             {
                 type: 'youtube',
-                youtubeId: 'mtMAYwGwZpc',
+                youtubeId: 'kJQP7kiw5Fk',
                 brand: 'OPPO',
-                model: 'F31 Series 5G',
-                displayName: 'OPPO F31 Series 5G'
+                model: 'F27 Pro+',
+                displayName: 'OPPO F27 Pro+'
             },
             {
                 type: 'youtube',
-                youtubeId: '1CMfdSCQ_Xs',
-                brand: 'OPPO',
-                model: 'K13 Turbo',
-                displayName: 'OPPO K13 Turbo'
+                youtubeId: 'L_jWHffIx5E',
+                brand: 'Samsung',
+                model: 'Galaxy S24',
+                displayName: 'Samsung Galaxy S24'
             },
             // Remaining videos disabled for Cloudflare Pages deployment
             // Will be added back as YouTube embeds once uploaded
@@ -340,11 +342,15 @@ class VideoPlayer {
         // Hide regular video element
         this.videoElement.style.display = 'none';
         
+        // Store current video type for controls
+        this.currentVideoType = 'youtube';
+        
         // Create YouTube iframe with NO ADS (unlisted videos)
         const iframe = document.createElement('iframe');
+        iframe.id = 'youtubePlayer';
         iframe.width = '100%';
         iframe.height = '100%';
-        iframe.src = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&loop=1&playlist=${video.youtubeId}&controls=0&mute=1&rel=0&showinfo=0&modestbranding=1&iv_load_policy=3`;
+        iframe.src = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&controls=0&mute=0&rel=0&showinfo=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&fs=0&disablekb=1&playsinline=1&widget_referrer=${window.location.origin}`;
         iframe.frameBorder = '0';
         iframe.allow = 'autoplay; encrypted-media';
         iframe.style.position = 'absolute';
@@ -357,13 +363,16 @@ class VideoPlayer {
         this.videoContainer.innerHTML = '';
         this.videoContainer.appendChild(iframe);
         
-        // Auto-advance after video duration (3 minutes for YouTube)
+        // Update play button state
+        this.playPauseBtn.innerHTML = '⏸';
+        
+        // Auto-advance after video duration (2.5 minutes for YouTube)
         if (this.isAutoplay) {
-            setTimeout(() => {
+            this.youtubeTimer = setTimeout(() => {
                 if (this.isAutoplay) {
                     this.showEndScreen();
                 }
-            }, 180000); // 3 minutes
+            }, 150000); // 2.5 minutes
         }
     }
 
@@ -373,6 +382,15 @@ class VideoPlayer {
         
         // Show regular video element
         this.videoElement.style.display = 'block';
+        
+        // Store current video type for controls
+        this.currentVideoType = 'local';
+        
+        // Clear any YouTube timers
+        if (this.youtubeTimer) {
+            clearTimeout(this.youtubeTimer);
+            this.youtubeTimer = null;
+        }
         
         // Set video source with optimized loading
         this.videoElement.src = video.path;
@@ -431,8 +449,13 @@ class VideoPlayer {
     }
 
     restartCurrentVideo() {
-        this.videoElement.currentTime = 0;
-        this.videoElement.play();
+        if (this.currentVideoType === 'youtube') {
+            // Restart YouTube video by reloading iframe
+            this.loadVideo(this.currentIndex);
+        } else {
+            this.videoElement.currentTime = 0;
+            this.videoElement.play();
+        }
     }
 
     updateProgress() {
@@ -456,10 +479,22 @@ class VideoPlayer {
     }
 
     togglePlayPause() {
-        if (this.videoElement.paused) {
-            this.videoElement.play();
+        if (this.currentVideoType === 'youtube') {
+            // For YouTube, we can't control play/pause directly
+            // So we simulate it by going to next video or restarting
+            if (this.playPauseBtn.innerHTML === '▶') {
+                this.restartCurrentVideo();
+                this.playPauseBtn.innerHTML = '⏸';
+            } else {
+                this.nextVideo();
+            }
         } else {
-            this.videoElement.pause();
+            // Regular video controls
+            if (this.videoElement.paused) {
+                this.videoElement.play();
+            } else {
+                this.videoElement.pause();
+            }
         }
     }
 
@@ -504,7 +539,8 @@ class VideoPlayer {
         
         // Hide controls after 4 seconds of inactivity
         this.controlsTimeout = setTimeout(() => {
-            if (!this.videoElement.paused) {
+            // Hide controls for both YouTube and local videos
+            if (this.currentVideoType === 'youtube' || !this.videoElement.paused) {
                 this.controlsElement.classList.add('hidden');
                 this.controlsVisible = false;
             }
