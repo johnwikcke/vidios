@@ -15,6 +15,7 @@ class VideoPlayer {
         
         // DOM elements
         this.videoElement = document.getElementById('videoPlayer');
+        this.videoContainer = document.getElementById('videoContainer');
         this.brandElement = document.getElementById('brandName');
         this.progressBar = document.getElementById('progressBar');
         this.loadingElement = document.getElementById('loading');
@@ -47,128 +48,87 @@ class VideoPlayer {
     }
 
     async loadVideoList() {
-        // List of all videos with properly URL-encoded file names
+        // List of all videos - YouTube Embeds (No file size limits!)
         this.videos = [
             {
-                path: 'video/%23LooksGreat%20and%20worth%20the%20wait%20_%20%23realme15T%20Launching%20Today.mp4',
+                type: 'youtube',
+                youtubeId: 'jpbrCGHr4GI',
                 brand: 'Realme',
                 model: '15T',
                 displayName: 'Realme 15T'
             },
             {
-                path: 'video/Introducing%20iPhone%2016%20_%20Apple%20_%20Concept%20Trailer.mp4',
+                type: 'youtube',
+                youtubeId: 'Em_Vcfm0rbA',
                 brand: 'Apple',
                 model: 'iPhone 16',
                 displayName: 'Apple iPhone 16'
             },
             {
-                path: 'video/iPhone%2015%20-%20Relax%2C%20it%20s%20iPhone%20-%20Don%20t%20Let%20Me%20Go%20(15).mp4',
+                type: 'youtube',
+                youtubeId: 'iiopSpbAkqE',
                 brand: 'Apple',
                 model: 'iPhone 15',
                 displayName: 'Apple iPhone 15'
             },
             {
-                path: 'video/iPhone%2015%20Pro%20Reveal%20(4K).mp4',
+                type: 'youtube',
+                youtubeId: 'Z75Hh1pKxgg',
                 brand: 'Apple',
                 model: 'iPhone 15 Pro',
                 displayName: 'Apple iPhone 15 Pro'
             },
             {
-                path: 'video/iPhone%2017%20Pro%20_%20The%20Ultimate%20Pro%20_%20Apple.mp4',
+                type: 'youtube',
+                youtubeId: '3kklV0nZONw',
                 brand: 'Apple',
                 model: 'iPhone 17 Pro',
                 displayName: 'Apple iPhone 17 Pro'
             },
             {
-                path: 'video/OPPO%20A5%20Pro%205G%20_%20Pro%20Style.%20Pro%20Performance..mp4',
+                type: 'youtube',
+                youtubeId: 'XvGSV_VglQg',
                 brand: 'OPPO',
                 model: 'A5 Pro 5G',
                 displayName: 'OPPO A5 Pro 5G'
             },
             {
-                path: 'video/OPPO%20A5.mp4',
+                type: 'youtube',
+                youtubeId: 'txpQDi-mIuI',
                 brand: 'OPPO',
                 model: 'A5',
                 displayName: 'OPPO A5'
             },
             {
-                path: 'video/OPPO%20A5x%20_%20%E3%83%97%E3%83%AD%E3%83%80%E3%82%AF%E3%83%88%E3%83%93%E3%83%87%E3%82%AA.mp4',
+                type: 'youtube',
+                youtubeId: '_9zGIc84_2I',
                 brand: 'OPPO',
                 model: 'A5x',
                 displayName: 'OPPO A5x'
             },
             {
-                path: 'video/OPPO%20F31%20Series%205G%20_%20%23SmoothAndPowerful.mp4',
+                type: 'youtube',
+                youtubeId: 'mtMAYwGwZpc',
                 brand: 'OPPO',
                 model: 'F31 Series 5G',
                 displayName: 'OPPO F31 Series 5G'
             },
             {
-                path: 'video/OPPO%20K13%20Turbo%20Official%20Introduction.mp4',
+                type: 'youtube',
+                youtubeId: '1CMfdSCQ_Xs',
                 brand: 'OPPO',
                 model: 'K13 Turbo',
                 displayName: 'OPPO K13 Turbo'
             },
-            {
-                path: 'video/realme%2014x%205G%20%20Official%20Unboxing.mp4',
-                brand: 'Realme',
-                model: '14x 5G',
-                displayName: 'Realme 14x 5G'
-            },
-            {
-                path: 'video/realme%2015%20Series%205G.mp4',
-                brand: 'Realme',
-                model: '15 Series 5G',
-                displayName: 'Realme 15 Series 5G'
-            },
-            {
-                path: 'video/realme%20C71%20%E2%94%82%201-Hour%20Charge%2C%202-Day%20Use.mp4',
-                brand: 'Realme',
-                model: 'C71',
-                displayName: 'Realme C71'
-            },
-            {
-                path: 'video/realme%20C75%20Everything%20Proof.mp4',
-                brand: 'Realme',
-                model: 'C75',
-                displayName: 'Realme C75'
-            },
-            {
-                path: 'video/SSYouTube.online_iPhone%2015%20Pro%20Reveal%20(4K)_1080p.mp4',
-                brand: 'Apple',
-                model: 'iPhone 15 Pro',
-                displayName: 'Apple iPhone 15 Pro'
-            },
-            {
-                path: 'video/SSYouTube.online_realme%2015%20Pro%20%E2%94%82%20Game%20of%20Thrones_1080p.mp4',
-                brand: 'Realme',
-                model: '15 Pro',
-                displayName: 'Realme 15 Pro'
-            },
-            {
-                path: 'video/SSYouTube.online_vivo%20Y31%20Official%20Trailer_1080p.mp4',
-                brand: 'Vivo',
-                model: 'Y31',
-                displayName: 'Vivo Y31'
-            },
-            {
-                path: 'video/SSYouTube.online_vivo%20Y400%20Pro%20in%20Freestyle%20white%20-%20Made%20for%20%23DreamChaser_1080p.mp4',
-                brand: 'Vivo',
-                model: 'Y400 Pro',
-                displayName: 'Vivo Y400 Pro'
-            },
-            {
-                path: 'video/TECNO%20SPARK%2030%20Series%20_%20TRANSFORMERS%20Edition.mp4',
-                brand: 'TECNO',
-                model: 'SPARK 30 Series',
-                displayName: 'TECNO SPARK 30 Series'
-            },
-            {
-                path: 'video/vivo%20V60%20_%2050MP%20ZEISS%20Super%20Telephoto%20Camera.mp4',
-                brand: 'Vivo',
-                model: 'V60',
-                displayName: 'Vivo V60'
-            }
+            // Remaining videos disabled for Cloudflare Pages deployment
+            // Will be added back as YouTube embeds once uploaded
+            // {
+            //     type: 'local',
+            //     path: 'video/TECNO%20SPARK%2030%20Series%20_%20TRANSFORMERS%20Edition.mp4', // 57.3MB - Too large for Cloudflare
+            //     brand: 'TECNO',
+            //     model: 'SPARK 30 Series',
+            //     displayName: 'TECNO SPARK 30 Series'
+            // }
         ];
 
         console.log(`Loaded ${this.videos.length} videos with brand and model information`);
@@ -368,6 +328,51 @@ class VideoPlayer {
         
         // Hide loading screen immediately for seamless experience
         this.loadingElement.style.display = 'none';
+        
+        if (video.type === 'youtube') {
+            this.loadYouTubeVideo(video);
+        } else {
+            this.loadLocalVideo(video);
+        }
+    }
+
+    loadYouTubeVideo(video) {
+        // Hide regular video element
+        this.videoElement.style.display = 'none';
+        
+        // Create YouTube iframe with NO ADS (unlisted videos)
+        const iframe = document.createElement('iframe');
+        iframe.width = '100%';
+        iframe.height = '100%';
+        iframe.src = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&loop=1&playlist=${video.youtubeId}&controls=0&mute=1&rel=0&showinfo=0&modestbranding=1&iv_load_policy=3`;
+        iframe.frameBorder = '0';
+        iframe.allow = 'autoplay; encrypted-media';
+        iframe.style.position = 'absolute';
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.style.width = '100vw';
+        iframe.style.height = '100vh';
+        
+        // Clear previous video and add new iframe
+        this.videoContainer.innerHTML = '';
+        this.videoContainer.appendChild(iframe);
+        
+        // Auto-advance after video duration (3 minutes for YouTube)
+        if (this.isAutoplay) {
+            setTimeout(() => {
+                if (this.isAutoplay) {
+                    this.showEndScreen();
+                }
+            }, 180000); // 3 minutes
+        }
+    }
+
+    loadLocalVideo(video) {
+        // Hide YouTube container
+        this.videoContainer.innerHTML = '';
+        
+        // Show regular video element
+        this.videoElement.style.display = 'block';
         
         // Set video source with optimized loading
         this.videoElement.src = video.path;

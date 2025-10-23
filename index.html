@@ -40,6 +40,24 @@
             justify-content: center;
         }
 
+        #videoContainer {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        #videoContainer iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
         video {
             width: 100vw;
             height: 100vh;
@@ -489,7 +507,10 @@
 
 <body>
     <div class="video-container">
-        <video id="videoPlayer" preload="auto" muted playsinline webkit-playsinline="true" x5-playsinline="true">
+        <div id="videoContainer">
+            <!-- YouTube iframe will be inserted here -->
+        </div>
+        <video id="videoPlayer" preload="auto" muted playsinline webkit-playsinline="true" x5-playsinline="true" style="display: none;">
             Your browser does not support the video tag.
         </video>
         <div class="brand-overlay" id="brandName">Loading...</div>

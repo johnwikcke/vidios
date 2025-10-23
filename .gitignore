@@ -1,0 +1,34 @@
+# Large video files - excluded due to Cloudflare Pages 25MB limit
+video/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Keep only small files
+!video/list of videos.docx
+
+# Node modules and build files
+node_modules/
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE files
+.vscode/settings.json
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
