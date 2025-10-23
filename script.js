@@ -8,13 +8,13 @@ class VideoPlayer {
         this.hasUserInteracted = false;
         this.currentVideoType = 'local';
         this.youtubeTimer = null;
-        
+
         // Advanced preloading system
         this.preloadedVideos = new Map();
         this.preloadQueue = [];
         this.maxPreloadedVideos = 3;
         this.isPreloading = false;
-        
+
         // DOM elements
         this.videoElement = document.getElementById('videoPlayer');
         this.videoContainer = document.getElementById('videoContainer');
@@ -38,7 +38,7 @@ class VideoPlayer {
         this.modelInfo = document.getElementById('modelInfo');
         this.endScreen = document.getElementById('endScreen');
         this.endScreenImage = document.getElementById('endScreenImage');
-        
+
         this.init();
     }
 
@@ -50,81 +50,196 @@ class VideoPlayer {
     }
 
     async loadVideoList() {
-        // List of all videos - YouTube Embeds (Official Phone Promotional Videos)
+        // Internet Archive Base URL - Your actual collection
+        const archiveBaseUrl = 'https://archive.org/download/phonewalevideos/';
+
+        // Try to fetch the file list from Internet Archive API
+        try {
+            const response = await fetch('https://archive.org/metadata/phonewalevideos');
+            const metadata = await response.json();
+            const mp4Files = metadata.files.filter(file => file.name.endsWith('.mp4'));
+
+            if (mp4Files.length > 0) {
+                this.videos = mp4Files.map((file, index) => {
+                    const fileName = file.name;
+                    const displayName = fileName.replace('.mp4', '').replace(/%20/g, ' ');
+
+                    // Extract brand and model from filename
+                    let brand = 'Unknown';
+                    let model = 'Model';
+
+                    if (fileName.includes('Apple') || fileName.includes('iPhone')) {
+                        brand = 'Apple';
+                        if (fileName.includes('15')) model = fileName.includes('Pro') ? 'iPhone 15 Pro' : 'iPhone 15';
+                        if (fileName.includes('16')) model = 'iPhone 16 Pro';
+                    } else if (fileName.includes('OPPO')) {
+                        brand = 'OPPO';
+                        if (fileName.includes('A3')) model = 'A3 Pro 5G';
+                        if (fileName.includes('F27')) model = 'F27 Pro+ 5G';
+                        if (fileName.includes('Find')) model = 'Find X8';
+                        if (fileName.includes('Reno')) model = 'Reno12 Pro 5G';
+                    } else if (fileName.includes('Realme')) {
+                        brand = 'Realme';
+                        model = '13+ 5G';
+                    } else if (fileName.includes('Samsung')) {
+                        brand = 'Samsung';
+                        model = 'Galaxy A16 5G';
+                    } else if (fileName.includes('TECNO')) {
+                        brand = 'TECNO';
+                        model = 'SPARK 30 Series';
+                    }
+
+                    return {
+                        type: 'local',
+                        path: archiveBaseUrl + encodeURIComponent(fileName),
+                        brand: brand,
+                        model: model,
+                        displayName: displayName
+                    };
+                });
+
+                console.log(`Auto-detected ${this.videos.length} videos from Internet Archive`);
+                return;
+            }
+        } catch (error) {
+            console.log('Could not auto-detect files, using manual list');
+        }
+
+        // Fallback: Manual list with exact filenames from your Internet Archive
         this.videos = [
             {
-                type: 'youtube',
-                youtubeId: 'XHTrLYShBRQ',
-                brand: 'Apple',
-                model: 'iPhone 15',
-                displayName: 'Apple iPhone 15'
+                type: 'local',
+                path: archiveBaseUrl + '#LooksGreat and worth the wait #realme15T Launching today.mp4',
+                brand: 'Realme',
+                model: '15T',
+                displayName: 'Realme 15T Launch'
             },
             {
-                type: 'youtube',
-                youtubeId: 'xqyUdNxWazA',
+                type: 'local',
+                path: archiveBaseUrl + 'Introducing iPhone 16 Apple Concept Trailer.mp4',
                 brand: 'Apple',
                 model: 'iPhone 16',
-                displayName: 'Apple iPhone 16'
+                displayName: 'iPhone 16 Concept'
             },
             {
-                type: 'youtube',
-                youtubeId: 'U4lz0LkBdXQ',
-                brand: 'Samsung',
-                model: 'Galaxy S24',
-                displayName: 'Samsung Galaxy S24'
-            },
-            {
-                type: 'youtube',
-                youtubeId: 'Bt9zSfinwFA',
+                type: 'local',
+                path: archiveBaseUrl + 'OPPO A5 Pro 5G Pro Style. Pro Performance.mp4',
                 brand: 'OPPO',
-                model: 'A3 Pro',
-                displayName: 'OPPO A3 Pro'
+                model: 'A5 Pro 5G',
+                displayName: 'OPPO A5 Pro 5G'
             },
             {
-                type: 'youtube',
-                youtubeId: 'YEb3Pxws6x4',
+                type: 'local',
+                path: archiveBaseUrl + 'OPPO A5.mp4',
                 brand: 'OPPO',
-                model: 'Reno12 Pro',
-                displayName: 'OPPO Reno12 Pro'
+                model: 'A5',
+                displayName: 'OPPO A5'
             },
             {
-                type: 'youtube',
-                youtubeId: 'bNXiJcP5u8A',
+                type: 'local',
+                path: archiveBaseUrl + 'OPPO A5x プロダクト ビデオ.mp4',
+                brand: 'OPPO',
+                model: 'A5x',
+                displayName: 'OPPO A5x'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'OPPO F31 Series 5G #SmoothAndPowerful.mp4',
+                brand: 'OPPO',
+                model: 'F31 Series 5G',
+                displayName: 'OPPO F31 Series 5G'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'OPPO K13 Turbo Official Introduction.mp4',
+                brand: 'OPPO',
+                model: 'K13 Turbo',
+                displayName: 'OPPO K13 Turbo'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'SSYouTube.online iPhone 15 Pro Reveal (4K) 1080p.mp4',
+                brand: 'Apple',
+                model: 'iPhone 15 Pro',
+                displayName: 'iPhone 15 Pro Reveal'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'SSYouTube.online realme 15 Pro │ Game of Thrones 1080p.mp4',
                 brand: 'Realme',
-                model: 'GT 7 Pro',
-                displayName: 'Realme GT 7 Pro'
+                model: '15 Pro',
+                displayName: 'Realme 15 Pro'
             },
             {
-                type: 'youtube',
-                youtubeId: 'HNMq5248cZg',
-                brand: 'OPPO',
-                model: 'Find X8',
-                displayName: 'OPPO Find X8'
+                type: 'local',
+                path: archiveBaseUrl + 'SSYouTube.online vivo Y31 Official Trailer 1080p.mp4',
+                brand: 'Vivo',
+                model: 'Y31',
+                displayName: 'Vivo Y31'
             },
             {
-                type: 'youtube',
-                youtubeId: 'kJQP7kiw5Fk',
-                brand: 'OPPO',
-                model: 'F27 Pro+',
-                displayName: 'OPPO F27 Pro+'
+                type: 'local',
+                path: archiveBaseUrl + 'SSYouTube.online vivo Y400 Pro in Freestyle white - Made for #DreamChaser 1080p.mp4',
+                brand: 'Vivo',
+                model: 'Y400 Pro',
+                displayName: 'Vivo Y400 Pro'
             },
-            // BACKUP: Safe fallback videos (always available)
             {
-                type: 'youtube',
-                youtubeId: 'jNQXAC9IVRw',
-                brand: 'Demo',
-                model: 'Sample Video',
-                displayName: 'Demo Sample Video'
+                type: 'local',
+                path: archiveBaseUrl + 'TECNO SPARK 30 Series TRANSFORMERS Edition.mp4',
+                brand: 'TECNO',
+                model: 'SPARK 30 Series',
+                displayName: 'TECNO SPARK 30 TRANSFORMERS'
             },
-            // Remaining videos disabled for Cloudflare Pages deployment
-            // Will be added back as YouTube embeds once uploaded
-            // {
-            //     type: 'local',
-            //     path: 'video/TECNO%20SPARK%2030%20Series%20_%20TRANSFORMERS%20Edition.mp4', // 57.3MB - Too large for Cloudflare
-            //     brand: 'TECNO',
-            //     model: 'SPARK 30 Series',
-            //     displayName: 'TECNO SPARK 30 Series'
-            // }
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'iPhone 15 - Relax, it s iPhone - Don t Let Me Go (15).mp4',
+                brand: 'Apple',
+                model: 'iPhone 15',
+                displayName: 'iPhone 15 Relax'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'iPhone 15 Pro Reveal (4K).mp4',
+                brand: 'Apple',
+                model: 'iPhone 15 Pro',
+                displayName: 'iPhone 15 Pro 4K'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'iPhone 17 Pro The Ultimate Pro Apple.mp4',
+                brand: 'Apple',
+                model: 'iPhone 17 Pro',
+                displayName: 'iPhone 17 Pro Ultimate'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'realme 14x 5G Official Unboxing.mp4',
+                brand: 'Realme',
+                model: '14x 5G',
+                displayName: 'Realme 14x 5G'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'realme 15 Series 5G.mp4',
+                brand: 'Realme',
+                model: '15 Series 5G',
+                displayName: 'Realme 15 Series 5G'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'realme C71 │ 1 Hour Charge, 2-Day Use.mp4',
+                brand: 'Realme',
+                model: 'C71',
+                displayName: 'Realme C71'
+            },
+            {
+                type: 'local',
+                path: archiveBaseUrl + 'vivo V60 50MP ZEISS Super Telephoto Camera.mp4',
+                brand: 'Vivo',
+                model: 'V60',
+                displayName: 'Vivo V60 ZEISS'
+            }
         ];
 
         console.log(`Loaded ${this.videos.length} videos with brand and model information`);
@@ -159,10 +274,10 @@ class VideoPlayer {
             // Set high quality
             this.videoElement.playbackRate = 1.0;
             this.updateQualityIndicator();
-            
+
             // Fix video aspect ratio to eliminate black bars
             this.adjustVideoFit();
-            
+
             // Aggressive auto-play for seamless transitions
             if (this.isAutoplay && this.hasUserInteracted) {
                 this.videoElement.muted = true;
@@ -181,7 +296,7 @@ class VideoPlayer {
             this.hideSmartIndicator('bufferIndicator');
             // Try to play as soon as data is loaded
             if (this.isAutoplay && this.hasUserInteracted) {
-                this.videoElement.play().catch(() => {});
+                this.videoElement.play().catch(() => { });
             }
         });
 
@@ -189,7 +304,7 @@ class VideoPlayer {
         this.videoElement.addEventListener('loadedmetadata', () => {
             this.hideSmartIndicator('bufferIndicator');
             if (this.isAutoplay && this.hasUserInteracted && this.videoElement.readyState >= 1) {
-                this.videoElement.play().catch(() => {});
+                this.videoElement.play().catch(() => { });
             }
         });
 
@@ -261,7 +376,7 @@ class VideoPlayer {
 
         // Keyboard controls
         document.addEventListener('keydown', (e) => {
-            switch(e.key) {
+            switch (e.key) {
                 case 'ArrowRight':
                     this.nextVideo();
                     break;
@@ -297,7 +412,7 @@ class VideoPlayer {
         document.addEventListener('touchend', (e) => {
             const touchEndY = e.changedTouches[0].clientY;
             const diff = touchStartY - touchEndY;
-            
+
             if (Math.abs(diff) > 50) {
                 if (diff > 0) {
                     this.nextVideo();
@@ -321,10 +436,10 @@ class VideoPlayer {
         // Display model name in separate info box
         this.modelInfo.textContent = video.model;
         this.updateVideoInfo();
-        
+
         // Hide loading screen immediately for seamless experience
         this.loadingElement.style.display = 'none';
-        
+
         if (video.type === 'youtube') {
             this.loadYouTubeVideo(video);
         } else {
@@ -335,10 +450,10 @@ class VideoPlayer {
     loadYouTubeVideo(video) {
         // Hide regular video element
         this.videoElement.style.display = 'none';
-        
+
         // Store current video type for controls
         this.currentVideoType = 'youtube';
-        
+
         // Create YouTube iframe with NO ADS (unlisted videos)
         const iframe = document.createElement('iframe');
         iframe.id = 'youtubePlayer';
@@ -352,7 +467,7 @@ class VideoPlayer {
         iframe.style.left = '0';
         iframe.style.width = '100vw';
         iframe.style.height = '100vh';
-        
+
         // Add error handling for unavailable videos
         iframe.onerror = () => {
             console.log(`Video unavailable: ${video.displayName}, skipping to next...`);
@@ -362,14 +477,14 @@ class VideoPlayer {
                 }, 2000);
             }
         };
-        
+
         // Clear previous video and add new iframe
         this.videoContainer.innerHTML = '';
         this.videoContainer.appendChild(iframe);
-        
+
         // Update play button state
         this.playPauseBtn.innerHTML = '⏸';
-        
+
         // Auto-advance after video duration (2.5 minutes for YouTube)
         if (this.isAutoplay) {
             this.youtubeTimer = setTimeout(() => {
@@ -378,7 +493,7 @@ class VideoPlayer {
                 }
             }, 150000); // 2.5 minutes
         }
-        
+
         // Check if video loads properly after 5 seconds
         setTimeout(() => {
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
@@ -394,28 +509,28 @@ class VideoPlayer {
     loadLocalVideo(video) {
         // Hide YouTube container
         this.videoContainer.innerHTML = '';
-        
+
         // Show regular video element
         this.videoElement.style.display = 'block';
-        
+
         // Store current video type for controls
         this.currentVideoType = 'local';
-        
+
         // Clear any YouTube timers
         if (this.youtubeTimer) {
             clearTimeout(this.youtubeTimer);
             this.youtubeTimer = null;
         }
-        
+
         // Set video source with optimized loading
         this.videoElement.src = video.path;
         this.videoElement.preload = 'auto';
         this.videoElement.load();
-        
+
         // Set initial volume
         this.videoElement.volume = this.volumeSlider.value / 100;
         this.updateVolumeIcon(this.volumeSlider.value);
-        
+
         // Aggressive autoplay for seamless transitions
         if (this.isAutoplay) {
             // For first video, show message if autoplay fails
@@ -532,12 +647,12 @@ class VideoPlayer {
         this.isAutoplay = !this.isAutoplay;
         this.autoplayBtn.classList.toggle('active', this.isAutoplay);
         this.autoplayBtn.title = this.isAutoplay ? 'Autoplay: ON' : 'Autoplay: OFF';
-        
+
         // Update smart indicator
         this.autoplayIndicator.textContent = this.isAutoplay ? 'Auto-Play ON' : 'Auto-Play OFF';
         this.autoplayIndicator.classList.toggle('autoplay', this.isAutoplay);
         this.showSmartIndicator('autoplayIndicator');
-        
+
         setTimeout(() => {
             this.hideSmartIndicator('autoplayIndicator');
         }, 2000);
@@ -546,12 +661,12 @@ class VideoPlayer {
     showControls() {
         this.controlsElement.classList.remove('hidden');
         this.controlsVisible = true;
-        
+
         // Clear existing timeout
         if (this.controlsTimeout) {
             clearTimeout(this.controlsTimeout);
         }
-        
+
         // Hide controls after 4 seconds of inactivity
         this.controlsTimeout = setTimeout(() => {
             // Hide controls for both YouTube and local videos
@@ -564,12 +679,12 @@ class VideoPlayer {
 
     showCursor() {
         document.body.classList.add('show-cursor');
-        
+
         // Clear existing timeout
         if (this.cursorTimeout) {
             clearTimeout(this.cursorTimeout);
         }
-        
+
         // Hide cursor after 3 seconds of inactivity
         this.cursorTimeout = setTimeout(() => {
             if (!this.videoElement.paused) {
@@ -608,7 +723,7 @@ class VideoPlayer {
         } else {
             this.qualityIndicator.textContent = 'SD Quality';
         }
-        
+
         this.showSmartIndicator('qualityIndicator');
         setTimeout(() => {
             this.hideSmartIndicator('qualityIndicator');
@@ -635,39 +750,39 @@ class VideoPlayer {
             'END%20SCREEN/end1.jpg',
             'END%20SCREEN/end2.jpg'
         ];
-        
+
         const randomImage = endScreenImages[Math.floor(Math.random() * endScreenImages.length)];
-        
+
         // Set end screen content - FULL HD IMAGE
         this.endScreenImage.src = randomImage;
-        
+
         // Force high quality loading
         this.endScreenImage.style.imageRendering = 'high-quality';
         this.endScreenImage.style.imageRendering = '-webkit-optimize-contrast';
         this.endScreenImage.loading = 'eager';
-        
+
         // Random animation
         const animations = ['endScreenAnimation', 'endScreenSlideIn', 'endScreenZoomIn'];
         const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
         this.endScreenImage.style.animation = `${randomAnimation} 3s ease-in-out`;
-        
+
         // No text - just show the image
-        
+
         // Wait for image to load at full quality before showing
         this.endScreenImage.onload = () => {
             // Show FULL SCREEN end screen only when image is fully loaded
             this.endScreen.classList.add('show');
-            
+
             // PRELOAD NEXT VIDEO while end screen is showing
             this.preloadNextVideoInBackground();
-            
+
             // Hide end screen and play next video after 4 seconds
             setTimeout(() => {
                 this.endScreen.classList.remove('show');
                 this.nextVideo();
             }, 4000);
         };
-        
+
         // If image fails to load, try fallback then show
         this.endScreenImage.onerror = () => {
             // Try fallback image
@@ -680,7 +795,7 @@ class VideoPlayer {
                 this.endScreenImage.src = 'END%20SCREEN/default.jpg';
                 return; // Let it try to load default
             }
-            
+
             // Show screen even if image failed
             this.endScreen.classList.add('show');
             setTimeout(() => {
@@ -693,7 +808,7 @@ class VideoPlayer {
     preloadNextVideoInBackground() {
         const nextIndex = (this.currentIndex + 1) % this.videos.length;
         const nextVideo = this.videos[nextIndex];
-        
+
         // Only preload local videos, not YouTube embeds
         if (nextVideo && nextVideo.type === 'local' && nextVideo.path) {
             // Create hidden video element for preloading
@@ -702,17 +817,17 @@ class VideoPlayer {
             preloadVideo.preload = 'auto';
             preloadVideo.muted = true;
             preloadVideo.style.display = 'none';
-            
+
             // Add to DOM temporarily for preloading
             document.body.appendChild(preloadVideo);
-            
+
             // Remove after preloading
             setTimeout(() => {
                 if (preloadVideo.parentNode) {
                     document.body.removeChild(preloadVideo);
                 }
             }, 5000);
-            
+
             console.log(`Preloading next video: ${nextVideo.displayName}`);
         } else if (nextVideo && nextVideo.type === 'youtube') {
             console.log(`Next video is YouTube embed: ${nextVideo.displayName} - No preloading needed`);
@@ -724,7 +839,7 @@ class VideoPlayer {
         const video = this.videoElement;
         const videoAspect = video.videoWidth / video.videoHeight;
         const screenAspect = window.innerWidth / window.innerHeight;
-        
+
         // If video is much wider or narrower than screen, adjust fit
         if (Math.abs(videoAspect - screenAspect) > 0.1) {
             if (videoAspect > screenAspect) {
@@ -741,15 +856,15 @@ class VideoPlayer {
             video.style.transform = 'scale(1)';
             video.style.objectFit = 'cover';
         }
-        
+
         console.log(`Video: ${video.videoWidth}x${video.videoHeight} (${videoAspect.toFixed(2)}), Screen: ${window.innerWidth}x${window.innerHeight} (${screenAspect.toFixed(2)})`);
     }
 
     toggleVideoFit() {
         const video = this.videoElement;
         const currentFit = video.style.objectFit || 'cover';
-        
-        switch(currentFit) {
+
+        switch (currentFit) {
             case 'cover':
                 // Switch to fill (stretches to fit, may distort)
                 video.style.objectFit = 'fill';
@@ -799,10 +914,10 @@ class VideoPlayer {
             `;
             document.body.appendChild(statusEl);
         }
-        
+
         statusEl.textContent = message;
         statusEl.style.display = 'block';
-        
+
         setTimeout(() => {
             statusEl.style.display = 'none';
         }, duration);
@@ -823,7 +938,7 @@ class VideoPlayer {
         // Only preload the next video to avoid memory issues
         const nextIndex = (this.currentIndex + 1) % this.videos.length;
         const nextVideo = this.videos[nextIndex];
-        
+
         // Only preload local videos, skip YouTube embeds
         if (nextVideo && nextVideo.type === 'local' && nextVideo.path && !this.preloadedVideos.has(nextIndex)) {
             const preloadVideo = document.createElement('video');
@@ -831,17 +946,17 @@ class VideoPlayer {
             preloadVideo.muted = true;
             preloadVideo.style.display = 'none';
             preloadVideo.src = nextVideo.path;
-            
+
             preloadVideo.addEventListener('loadedmetadata', () => {
                 this.preloadedVideos.set(nextIndex, preloadVideo);
                 console.log(`Preloaded: ${nextVideo.displayName}`);
             });
-            
+
             document.body.appendChild(preloadVideo);
         } else if (nextVideo && nextVideo.type === 'youtube') {
             console.log(`Skipping preload for YouTube video: ${nextVideo.displayName}`);
         }
-        
+
         this.isPreloading = false;
     }
 
@@ -874,24 +989,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('videoPlayer');
     video.setAttribute('webkit-playsinline', 'true');
     video.setAttribute('playsinline', 'true');
-    
+
     // Advanced video optimization
     video.setAttribute('x5-playsinline', 'true');
     video.setAttribute('x5-video-player-type', 'h5');
     video.setAttribute('x5-video-player-fullscreen', 'true');
-    
+
     // Set quality preferences and hardware acceleration
     if (video.requestVideoFrameCallback) {
         video.requestVideoFrameCallback(() => {
             // Callback for high-quality rendering with GPU acceleration
         });
     }
-    
+
     // Enable hardware decoding if available
     if ('webkitDecodedFrameCount' in video) {
         video.style.willChange = 'transform';
     }
-    
+
     // Optimize memory usage
     video.addEventListener('loadstart', () => {
         // Clear any previous video data
@@ -899,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
             video.currentTime = 0;
         }
     });
-    
+
     // Preload optimization
     video.addEventListener('progress', () => {
         // Optimize buffering
