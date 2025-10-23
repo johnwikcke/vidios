@@ -1,13 +1,13 @@
 # Large video files - excluded due to Cloudflare Pages 25MB limit
-video/
-*.mp4
-*.avi
-*.mov
-*.mkv
-*.webm
+video/*.mp4
+video/*.avi
+video/*.mov
+video/*.mkv
+video/*.webm
 
 # Keep only small files
-!video/list of videos.docx
+!video/*.docx
+!video/*.txt
 
 # Node modules and build files
 node_modules/
