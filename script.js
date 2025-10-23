@@ -50,14 +50,14 @@ class VideoPlayer {
     }
 
     async loadVideoList() {
-        // List of all videos - YouTube Embeds (No file size limits!)
+        // List of all videos - YouTube Embeds (Official Phone Promotional Videos)
         this.videos = [
             {
                 type: 'youtube',
-                youtubeId: 'bNXiJcP5u8A',
-                brand: 'Realme',
-                model: 'GT 7 Pro',
-                displayName: 'Realme GT 7 Pro'
+                youtubeId: 'XHTrLYShBRQ',
+                brand: 'Apple',
+                model: 'iPhone 15',
+                displayName: 'Apple iPhone 15'
             },
             {
                 type: 'youtube',
@@ -68,31 +68,17 @@ class VideoPlayer {
             },
             {
                 type: 'youtube',
-                youtubeId: 'XHTrLYShBRQ',
-                brand: 'Apple',
-                model: 'iPhone 15',
-                displayName: 'Apple iPhone 15'
-            },
-            {
-                type: 'youtube',
-                youtubeId: 'TEjOoXPbkKw',
-                brand: 'Apple',
-                model: 'iPhone 15 Pro',
-                displayName: 'Apple iPhone 15 Pro'
-            },
-            {
-                type: 'youtube',
-                youtubeId: 'dDyKJpTvhzI',
-                brand: 'Apple',
-                model: 'iPhone 15 Pro Max',
-                displayName: 'Apple iPhone 15 Pro Max'
+                youtubeId: 'U4lz0LkBdXQ',
+                brand: 'Samsung',
+                model: 'Galaxy S24',
+                displayName: 'Samsung Galaxy S24'
             },
             {
                 type: 'youtube',
                 youtubeId: 'Bt9zSfinwFA',
                 brand: 'OPPO',
-                model: 'A3 Pro 5G',
-                displayName: 'OPPO A3 Pro 5G'
+                model: 'A3 Pro',
+                displayName: 'OPPO A3 Pro'
             },
             {
                 type: 'youtube',
@@ -100,6 +86,13 @@ class VideoPlayer {
                 brand: 'OPPO',
                 model: 'Reno12 Pro',
                 displayName: 'OPPO Reno12 Pro'
+            },
+            {
+                type: 'youtube',
+                youtubeId: 'bNXiJcP5u8A',
+                brand: 'Realme',
+                model: 'GT 7 Pro',
+                displayName: 'Realme GT 7 Pro'
             },
             {
                 type: 'youtube',
@@ -115,12 +108,13 @@ class VideoPlayer {
                 model: 'F27 Pro+',
                 displayName: 'OPPO F27 Pro+'
             },
+            // BACKUP: Safe fallback videos (always available)
             {
                 type: 'youtube',
-                youtubeId: 'L_jWHffIx5E',
-                brand: 'Samsung',
-                model: 'Galaxy S24',
-                displayName: 'Samsung Galaxy S24'
+                youtubeId: 'jNQXAC9IVRw',
+                brand: 'Demo',
+                model: 'Sample Video',
+                displayName: 'Demo Sample Video'
             },
             // Remaining videos disabled for Cloudflare Pages deployment
             // Will be added back as YouTube embeds once uploaded
@@ -359,6 +353,16 @@ class VideoPlayer {
         iframe.style.width = '100vw';
         iframe.style.height = '100vh';
         
+        // Add error handling for unavailable videos
+        iframe.onerror = () => {
+            console.log(`Video unavailable: ${video.displayName}, skipping to next...`);
+            if (this.isAutoplay) {
+                setTimeout(() => {
+                    this.nextVideo();
+                }, 2000);
+            }
+        };
+        
         // Clear previous video and add new iframe
         this.videoContainer.innerHTML = '';
         this.videoContainer.appendChild(iframe);
@@ -374,6 +378,17 @@ class VideoPlayer {
                 }
             }, 150000); // 2.5 minutes
         }
+        
+        // Check if video loads properly after 5 seconds
+        setTimeout(() => {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            if (iframeDoc && iframeDoc.title.includes('unavailable') || iframeDoc.title.includes('private')) {
+                console.log(`Video appears to be unavailable: ${video.displayName}`);
+                if (this.isAutoplay) {
+                    this.nextVideo();
+                }
+            }
+        }, 5000);
     }
 
     loadLocalVideo(video) {
