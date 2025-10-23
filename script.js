@@ -679,7 +679,8 @@ class VideoPlayer {
         const nextIndex = (this.currentIndex + 1) % this.videos.length;
         const nextVideo = this.videos[nextIndex];
         
-        if (nextVideo) {
+        // Only preload local videos, not YouTube embeds
+        if (nextVideo && nextVideo.type === 'local' && nextVideo.path) {
             // Create hidden video element for preloading
             const preloadVideo = document.createElement('video');
             preloadVideo.src = nextVideo.path;
@@ -698,6 +699,8 @@ class VideoPlayer {
             }, 5000);
             
             console.log(`Preloading next video: ${nextVideo.displayName}`);
+        } else if (nextVideo && nextVideo.type === 'youtube') {
+            console.log(`Next video is YouTube embed: ${nextVideo.displayName} - No preloading needed`);
         }
     }
 
@@ -806,7 +809,8 @@ class VideoPlayer {
         const nextIndex = (this.currentIndex + 1) % this.videos.length;
         const nextVideo = this.videos[nextIndex];
         
-        if (nextVideo && !this.preloadedVideos.has(nextIndex)) {
+        // Only preload local videos, skip YouTube embeds
+        if (nextVideo && nextVideo.type === 'local' && nextVideo.path && !this.preloadedVideos.has(nextIndex)) {
             const preloadVideo = document.createElement('video');
             preloadVideo.preload = 'metadata';
             preloadVideo.muted = true;
@@ -819,6 +823,8 @@ class VideoPlayer {
             });
             
             document.body.appendChild(preloadVideo);
+        } else if (nextVideo && nextVideo.type === 'youtube') {
+            console.log(`Skipping preload for YouTube video: ${nextVideo.displayName}`);
         }
         
         this.isPreloading = false;
