@@ -64,29 +64,69 @@ class VideoPlayer {
                     const fileName = file.name;
                     const displayName = fileName.replace('.mp4', '').replace(/%20/g, ' ');
 
-                    // Extract brand and model from filename
+                    // Extract brand and model from filename - Comprehensive detection
                     let brand = 'Unknown';
                     let model = 'Model';
-
-                    if (fileName.includes('Apple') || fileName.includes('iPhone')) {
+                    
+                    const fileNameLower = fileName.toLowerCase();
+                    
+                    // Apple / iPhone Detection
+                    if (fileNameLower.includes('iphone') || fileNameLower.includes('apple')) {
                         brand = 'Apple';
-                        if (fileName.includes('15')) model = fileName.includes('Pro') ? 'iPhone 15 Pro' : 'iPhone 15';
-                        if (fileName.includes('16')) model = 'iPhone 16 Pro';
-                    } else if (fileName.includes('OPPO')) {
+                        if (fileNameLower.includes('iphone 15')) {
+                            if (fileNameLower.includes('pro')) model = 'iPhone 15 Pro';
+                            else model = 'iPhone 15';
+                        } else if (fileNameLower.includes('iphone 16')) {
+                            model = 'iPhone 16';
+                        } else if (fileNameLower.includes('iphone 17')) {
+                            model = 'iPhone 17 Pro';
+                        } else {
+                            model = 'iPhone';
+                        }
+                    }
+                    // OPPO Detection
+                    else if (fileNameLower.includes('oppo')) {
                         brand = 'OPPO';
-                        if (fileName.includes('A3')) model = 'A3 Pro 5G';
-                        if (fileName.includes('F27')) model = 'F27 Pro+ 5G';
-                        if (fileName.includes('Find')) model = 'Find X8';
-                        if (fileName.includes('Reno')) model = 'Reno12 Pro 5G';
-                    } else if (fileName.includes('Realme')) {
+                        if (fileNameLower.includes('a5x')) model = 'A5x';
+                        else if (fileNameLower.includes('a5 pro')) model = 'A5 Pro 5G';
+                        else if (fileNameLower.includes('a5')) model = 'A5';
+                        else if (fileNameLower.includes('f31')) model = 'F31 Series 5G';
+                        else if (fileNameLower.includes('k13')) model = 'K13 Turbo';
+                        else model = 'OPPO Phone';
+                    }
+                    // Realme Detection
+                    else if (fileNameLower.includes('realme')) {
                         brand = 'Realme';
-                        model = '13+ 5G';
-                    } else if (fileName.includes('Samsung')) {
-                        brand = 'Samsung';
-                        model = 'Galaxy A16 5G';
-                    } else if (fileName.includes('TECNO')) {
+                        if (fileNameLower.includes('15t')) model = '15T';
+                        else if (fileNameLower.includes('15 pro')) model = '15 Pro';
+                        else if (fileNameLower.includes('15 series')) model = '15 Series 5G';
+                        else if (fileNameLower.includes('14x')) model = '14x 5G';
+                        else if (fileNameLower.includes('c71')) model = 'C71';
+                        else model = 'Realme Phone';
+                    }
+                    // Vivo Detection
+                    else if (fileNameLower.includes('vivo')) {
+                        brand = 'Vivo';
+                        if (fileNameLower.includes('y31')) model = 'Y31';
+                        else if (fileNameLower.includes('y400')) model = 'Y400 Pro';
+                        else if (fileNameLower.includes('v60')) model = 'V60';
+                        else model = 'Vivo Phone';
+                    }
+                    // TECNO Detection
+                    else if (fileNameLower.includes('tecno')) {
                         brand = 'TECNO';
-                        model = 'SPARK 30 Series';
+                        if (fileNameLower.includes('spark 30')) model = 'SPARK 30 Series';
+                        else model = 'TECNO Phone';
+                    }
+                    // Samsung Detection
+                    else if (fileNameLower.includes('samsung') || fileNameLower.includes('galaxy')) {
+                        brand = 'Samsung';
+                        model = 'Galaxy Phone';
+                    }
+                    // Generic phone detection for unrecognized brands
+                    else if (fileNameLower.includes('phone') || fileNameLower.includes('mobile')) {
+                        brand = 'Phone';
+                        model = 'Smartphone';
                     }
 
                     return {
